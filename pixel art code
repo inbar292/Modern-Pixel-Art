@@ -1,0 +1,80 @@
+from PIL import Image
+import os
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+"""This function takes a photo, pixilizing it and, 
+add a white background in order to upload it to instagram
+in the format of 1080 X 1080"""
+
+def img_pixel(path):
+	img = Image.open(path)
+	# Set biggest size of image
+	img.thumbnail((900, 900))
+	# Set Pixels size
+	width, height = img.size
+	imgSmall = img.resize((int(width/40), int(height/40)))
+
+	# Scale back up using NEAREST to original size
+	result = imgSmall.resize(img.size,Image.NEAREST)
+
+	# Save
+	result.save('result.png')
+
+	#add frame and save
+	result_img = Image.open('result.png', 'r')
+	result_img_w, result_img_h = result_img.size
+	background = Image.new('RGBA', (1080, 1080), (255, 255, 255, 255))
+	bg_w, bg_h = background.size
+	offset = ((bg_w - result_img_w) // 2, (bg_h - result_img_h) // 2)
+	background.paste(result_img, offset)
+	   
+	# Set new name for image
+	head, sep, tail = path.partition('.')
+	background.save(head+ ' pixel.png')
+
+################################################################################
+
+"""this section is for resizing the original photo in order to be able to upload
+	 the original photo to instagram"""
+
+def img_resize_with_frame(path):
+	img = Image.open(path)
+	# Set biggest size of image
+	img.thumbnail((900, 900))
+	# Set Pixels size
+	width, height = img.size
+	#imgSmall = img.resize((int(width/50), int(height/50)))
+
+	# Scale back up using NEAREST to original size
+	result = img.resize(img.size,Image.NEAREST)
+
+	# Save
+	result.save('result.png')
+
+	#add frame and save
+	result_img = Image.open('result.png', 'r')
+	result_img_w, result_img_h = result_img.size
+	background = Image.new('RGBA', (1080, 1080), (255, 255, 255, 255))
+	bg_w, bg_h = background.size
+	offset = ((bg_w - result_img_w) // 2, (bg_h - result_img_h) // 2)
+	background.paste(result_img, offset)
+	   
+	# Set new name for image
+	head, sep, tail = path.partition('.')
+	background.save(head+ ' resize with frame.png')
+
+##############################################################################
+
+#iterate through directory folder
+
+directory = os.fsencode('pixel art')
+    
+for file in os.listdir(directory):
+	filename = os.fsdecode(file)
+	if filename.endswith(".jpg") or filename.endswith("jpeg") or filename.endswith(".png"):
+		#print(filename)
+		img_pixel('pixel art/'+ filename)
+		img_resize_with_frame('pixel art/'+ filename)
+	else:
+		continue
